@@ -1,0 +1,18 @@
+{
+  "name": "anagram-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "seed-db": "node -r esm ./seeds/seed.js",
+    "start": "nodemon -r esm ./index.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.4",
+    "mongoose": "^5.9.2",
+    "nodemon": "^2.0.2"
+  }
+}
