@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import { MongoClient } from 'mongodb'
-import { deleteWord, getAnagrams, getStats, insertWords } from './queries'
+import { deleteWord, getAnagrams, getStats, insertWords, wordsAreAnagrams } from './queries'
 
 MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
   const anagramApi = db.db('anagram-api')
@@ -10,6 +10,11 @@ MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
 
   app.use(bodyParser.json())
   app.listen(port, () => console.log(`App listening on port: ${port}`))
+
+  app.post('/checkWords', async (req, res) => {
+    const result = await wordsAreAnagrams(req.body.words)
+    res.send(`Words are all anagrams?: ${result}`)
+  })
 
   // this endpoint is slow
   app.get('/stats', async (req, res) => {

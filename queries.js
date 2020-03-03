@@ -75,3 +75,19 @@ export async function insertWords(db, words) {
   
   return await db.collection('words').insertMany(wordsToAdd)
 }
+
+// this could verify whether or not the words are all in the dictionary
+export async function wordsAreAnagrams(words) {
+  let result
+
+  if(words.length <= 1) {
+    result = true;
+  } else {
+    const firstWordSorted = sortByLetter(words[0])
+    const sortedWords = words.filter(word => firstWordSorted === sortByLetter(word))
+
+    result = words.length === sortedWords.length
+  }
+
+  return result
+}
