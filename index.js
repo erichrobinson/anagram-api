@@ -11,19 +11,45 @@ MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
   app.use(bodyParser.json())
   app.listen(port, () => console.log(`App listening on port: ${port}`))
 
-  // calc min, max, median
+  // this endpoint is slow
   app.get('/stats', async (req, res) => {
-    const stats = await anagramApi.collection('words').aggregate([{
+    async function getMedianWordLength(wordCount) {
+      const sorted = await anagramApi.collection('words').find().sort( { length: 1 } ).toArray()
+      const middleIndex = wordCount / 2
+      let median
+      
+      if(wordCount % 2 === 0) {
+        median = (sorted[middleIndex].length + sorted[middleIndex + 1].length) / 2
+      } else {
+        median = sorted[Math.round(middleIndex)]
+      }
+
+      return median
+    }
+    
+    const stats = {}
+    const aggregateData = await anagramApi.collection('words').aggregate([{
       $group: {
         _id: null,
-        total: {
-          $sum: "$length"
+        average: {
+          $avg: '$length',
+        },
+        min: {
+          $min: '$length',
+        },
+        max: {
+          $max: '$length'
         }
       }
     }]).toArray()
 
-    const documentCount = await anagramApi.collection('words').countDocuments();
-    res.send(`docs: ${documentCount}, average: ${stats[0].total / documentCount}`)
+    stats.numberOfWords = await anagramApi.collection('words').countDocuments();
+    stats.averageWordLength = +aggregateData[0].average.toFixed(1)
+    stats.minWordLength = aggregateData[0].min
+    stats.maxWordLength = aggregateData[0].max
+    stats.medianWordLength = await getMedianWordLength(stats.numberOfWords)
+
+    res.send(`${JSON.stringify(stats)}`)
   })
 
   // don't insert if it already exists
@@ -67,53 +93,3 @@ MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
     res.send(anagrams.map(record => record.word))
   })
 })
-
-// function getMedian(words) {
-//   //even? odd?
-//   const i = Math.round(words.length / 2)
-//   let x = words.map(word => {
-//     return word.toLowerCase()
-//   })
-
-//   console.log(x)
-//   return x.sortByLetter()[i].length
-// }
-
-// // combine avg and median calls into a single iteration, possibly tied into the initial forEach on the response
-
-// function getAvg(words) {
-//   let total = 0;
-//   words.forEach(word => {
-//     // console.log(word)
-//     total += word.length
-//   })
-//   const length = words.length
-//   // console.log(`total: ${total} and length: ${length}`)
-//   return total/length
-// }
-
-// app.get('/stats', (req, res) => {
-//   MongoClient.connect(url, function(err, db) {
-//     var dbo = db.db("anagram-api")
-//     dbo.collection('words').find().toArray((err, response) => {
-//       let min = 1, max = 1, words = []
-//       response.forEach(obj => {
-//         if(obj.word.length < min) {
-//           min = obj.word.length;
-//         } else if(obj.word.length > max) {
-//           max = obj.word.length
-//         }
-//         words.push(obj.word)
-//       })
-
-//       const stats = {
-//         min,
-//         max,
-//         median: getMedian(words),
-//         average: getAvg(words),
-//       }
-
-//       res.send(stats)
-//     })
-//   })
-// })

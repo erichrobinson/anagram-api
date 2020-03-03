@@ -21,7 +21,7 @@ MongoClient.connect('mongodb://localhost:27017', async (err, db) => {
   try {
     await anagramApi.dropCollection('words')
     const result = await anagramApi.collection('words').insertMany(generateSeedData())
-    const index = await anagramApi.collection('words').createIndex({ sorted: 1, isProper: 1 })
+    const index = await anagramApi.collection('words').createIndex({ sorted: 1, isProper: 1, length: 1 })
     console.log(`Number of documents inserted: ${result.insertedCount}\nIndex created: ${index}`)
   } catch(err) {
     console.error(`Error seeding DB: ${err}`)
