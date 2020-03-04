@@ -1,5 +1,14 @@
 import { isProper, sortByLetter } from './helpers'
 
+/** Simple helper to assist in readability */
+function buildResponse(status, message, data = []) {
+  return {
+    status,
+    message,
+    data
+  }
+}
+
 /**
  * Deletes one or more record(s) from the "words" collection.
  * If delteAnagrams flag is false, only delete the word that was passed in.
@@ -8,8 +17,8 @@ import { isProper, sortByLetter } from './helpers'
  * 
  * Returns the result of the deletion.
  */
-export async function deleteWord(db, word, deleteAnagrams = false) {
-  const result = {}
+export async function deleteWord(db, word = '', deleteAnagrams = false) {
+  let result
   let deletedWords
 
   try {
@@ -19,12 +28,17 @@ export async function deleteWord(db, word, deleteAnagrams = false) {
       deletedWords = await db.collection('words').deleteOne({ word })
     }
 
-    result.status = 200
-    result.message = `Word(s) ${deleteAnagrams ? 'and anagrams' : ''} sucesfully deleted`
+    result = buildResponse(
+      200,
+      `${deletedWords.deletedCount} word(s) ${deleteAnagrams ? 'and anagrams' : ''} sucesfully deleted`
+    )
+
   } catch(err) {
-    console.error(`Error in deleteWord for ${word}: ${error}`)
-    result.status = 500
-    result.message = `An error ocurred: ${error}`
+    console.error(`Error in deleteWord for ${word}: ${err}`)
+    result = buildResponse(
+      500,
+      `An error ocurred: ${error}`
+    )
   }
   
   return result
@@ -37,8 +51,8 @@ export async function deleteWord(db, word, deleteAnagrams = false) {
  * 
  * Returns an array of words that are anagrams of the source word.
  */
-export async function getAnagrams(db, word, excludeProper = false, limit = 1000) {
-  let result = {}
+export async function getAnagrams(db, word = '', excludeProper = false, limit = 1000) {
+  let result
   let anagrams
   const query = {
     word: { $ne: word },
@@ -49,14 +63,17 @@ export async function getAnagrams(db, word, excludeProper = false, limit = 1000)
 
   try {
     anagrams = await db.collection('words').find(query).limit(limit).toArray()
-    result.status = 200
-    result.message = `${anagrams.length} anagrams found for the word ${word}.`
-    result.data = anagrams.map(record => record.word)
+    result = buildResponse(
+      200,
+      `${anagrams.length} anagrams found for the word ${word}.`,
+      anagrams.map(record => record.word)
+    )
   } catch(err) {
     console.error(`Error in getAnagrams for ${word}: ${err}`)
-    result.status = 500
-    result.message = `An error ocurred: ${err}`
-    result.data = []
+    result = buildResponse(
+      500,
+      `An error ocurred: ${err}`
+    )
   }
 
   return result
@@ -91,7 +108,7 @@ async function getMedianWordLength(db, wordCount) {
  * min length, average length, median length
  */
 export async function getStats(db) {
-  const response = {}
+  let result
   const stats = {}
 
   try {
@@ -116,17 +133,20 @@ export async function getStats(db) {
     stats.maxWordLength = aggregateData[0].max
     stats.medianWordLength = await getMedianWordLength(db, stats.numberOfWords)
 
-    response.status = 200
-    response.message = "Data sucessfully retrieved"
-    response.data = stats
+    result = buildResponse(
+      200,
+      "Data sucessfully retrieved",
+      stats
+    )
   } catch(err) {
     console.error(`Error in getStats: ${error}`)
-    response.status = 500
-    response.message = `Error retrieving data: ${error}`
-    response.data = []
+    result = buildResponse(
+      500,
+      `Error retrieving data: ${error}`
+    )
   }
   
-  return response
+  return result
 }
 
 /**
@@ -135,9 +155,9 @@ export async function getStats(db) {
  * 
  * Returns  
  */
-export async function insertWords(db, words) {
+export async function insertWords(db, words = []) {
   const wordsToAdd = []
-  let response = {}
+  let result
 
   try {
     for(let i = 0; i < words.length; i++) {
@@ -158,18 +178,21 @@ export async function insertWords(db, words) {
       await db.collection('words').insertMany(wordsToAdd)
     }
 
-    response.status = 200
-    response.message = 'Words succesfully added to the dictionary'
-    response.data = words
+    result = buildResponse(
+      200,
+      `${wordsToAdd.length} word(s) succesfully added to the dictionary. ${words.length} word(s) already existed in the dictionary.`,
+      words
+    )
   }
   catch(err) {
     console.error(`Error in insertWords for ${words}: ${err}`)
-    response.status = 500
-    response.message = `An error occurred: ${err}`
-    response.data = []
+    result = buildResponse(
+      500,
+      `An error occurred: ${err}`
+    )
   }
 
-  return response
+  return result
 }
 
 /**
@@ -182,7 +205,7 @@ export async function insertWords(db, words) {
  * Returns boolean that represents whether all the supplied words 
  * are anagrams of eachother
  */
-export function wordsAreAnagrams(words) {
+export function wordsAreAnagrams(words = []) {
   let result
 
   if(words.length <= 1) {
@@ -194,9 +217,13 @@ export function wordsAreAnagrams(words) {
     result = words.length === sortedWords.length
   }
 
-  return {
-    status: 200,
-    message: `The words ${result ? 'are' : 'are not'} anagrams.`,
-    data: words
-  }
+  let message = words.length > 1 ? 
+    `The words ${result ? 'are' : 'are not'} anagrams.` : 
+    'Less than two words supplied. Please pass in an array of 2 or more words in the request body.'
+
+  return buildResponse(
+    200,
+    message,
+    words
+  )
 }

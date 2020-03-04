@@ -8,7 +8,6 @@ export function sortByLetter(word) {
   return word.toLowerCase().split('').sort().join('')
 }
 
-
 /**
  * Checks if the first letter of a word is capitalized.
  * Used as a rough approximation of whether a word is

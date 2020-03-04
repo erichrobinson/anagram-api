@@ -78,4 +78,5 @@ Tradeoffs, Limitations, Edgecases
 records. The API was fast, especially after the initial run. Adding a check to make sure only unique records were
 inserted caused a bif performance hit and is *not* a scalable solution. 
 2. API response speed on `/stats` endpoint can take ~4 seconds. Another slow input that is bogged down by the need
-to iterate over the entire collection multiple times. This would be one of the first issues I tried to solve.
+to iterate over the entire collection multiple times. This would be one of the first issues I tried to solve. My dev
+machine is older, so this endpoint may be constrained by the processor.
