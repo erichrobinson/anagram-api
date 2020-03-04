@@ -53,6 +53,8 @@ I tried to rely primarily on vanilla JS and Mongo's query APIs to achieve most t
 4. Better handling of words that have both a proper and common variant i.e. God and god
 5. Allow dictionary to be passed in from the CLI or other UI rather than hardcoded
 6. Provide some sort of validation for the dictionary before seeding
+7. More descriptive messages for API responses
+8. Tests
 
 
 # Tradeoffs, Limitations, Edge cases
