@@ -30,7 +30,7 @@ export async function deleteWord(db, word = '', deleteAnagrams = false) {
 
     result = buildResponse(
       200,
-      `${deletedWords.deletedCount} word(s) ${deleteAnagrams ? 'and anagrams' : ''} sucesfully deleted`
+      `${deletedWords.deletedCount} word(s) ${deleteAnagrams ? 'and anagrams' : ''} sucessfully deleted`
     )
 
   } catch(err) {
@@ -219,7 +219,7 @@ export function wordsAreAnagrams(words = []) {
 
   let message = words.length > 1 ? 
     `The words ${result ? 'are' : 'are not'} anagrams.` : 
-    'Less than two words supplied. Please pass in an array of 2 or more words in the request body.'
+    'Fewer than two words supplied. Please pass in an array of 2 or more words in the request body.'
 
   return buildResponse(
     200,
