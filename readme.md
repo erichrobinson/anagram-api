@@ -36,7 +36,7 @@ status: 200,
 message: "Some message",
 data: [] || {}
 }
-<code><pre>
+</code></pre>
 
 # Implementation Notes
 ## Tech Details
