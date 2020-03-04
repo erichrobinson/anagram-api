@@ -29,7 +29,14 @@ body.words = ['array', 'of', 'words']
 **DELETE** localhost:3000/words/:word\
 ?deleteAnagrams=boolean
 
-All endpoints follow REST conventions for naming and return values.
+All endpoints follow REST conventions for naming and return values. Responses in the shape:\
+<code><pre>
+{
+status: 200,
+message: "Some message",
+data: [] || {}
+}
+<code><pre>
 
 # Implementation Notes
 ## Tech Details
