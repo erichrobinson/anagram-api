@@ -180,7 +180,7 @@ export async function insertWords(db, words = []) {
 
     result = buildResponse(
       200,
-      `${wordsToAdd.length} word(s) succesfully added to the dictionary. ${words.length} word(s) already existed in the dictionary.`,
+      `${wordsToAdd.length} word(s) succesfully added to the dictionary. ${words.length - wordsToAdd.length} word(s) already existed in the dictionary.`,
       words
     )
   }
