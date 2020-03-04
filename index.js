@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser'
 import express from 'express'
 import { MongoClient } from 'mongodb'
-import { deleteWord, getAnagrams, getStats, insertWords, wordsAreAnagrams } from './queries'
+import { deleteWord, getAnagrams, getStats, insertWords, wordsAreAnagrams } from './utilities/queries'
 
 MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
   const anagramApi = db.db('anagram-api')
@@ -11,8 +11,8 @@ MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
   app.use(bodyParser.json())
   app.listen(port, () => console.log(`App listening on port: ${port}`))
 
-  app.post('/checkWords', async (req, res) => {
-    const result = await wordsAreAnagrams(req.body.words)
+  app.post('/anagrams', (req, res) => {
+    const result = wordsAreAnagrams(req.body.words)
     res.send(`Words are all anagrams?: ${result}`)
   })
 
@@ -22,16 +22,13 @@ MongoClient.connect('mongodb://localhost:27017/', (err, db) => {
     res.send(`${JSON.stringify(stats)}`)
   })
 
-  // don't insert if it already exists
-  // notify of records not inserted
+  // challenge: don't insert words that already exist...checking for the existence of the record
   app.post('/words', async (req, res) => {
-    console.log('req', req.body)
     const result = await insertWords(anagramApi, req.body.words)
-    res.send(`Number of documents inserted: ${result.insertedCount}`)
+    res.send(result)
+    // res.send(`Number of documents inserted: ${result.insertedCount}`)
   })
 
-  // handle query param better
-  // handle word not found
   app.delete('/words/:word', async (req, res) => {
     const result = await deleteWord(anagramApi, req.params.word, req.query.deleteAnagrams)
     res.send(`Number of documents deleted: ${result.deletedCount}`)
