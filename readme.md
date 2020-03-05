@@ -3,7 +3,10 @@
 Pull the project from GitHub: `https://github.com/erichrobinson/anagram-api.git`
 
 Install Homebrew from instructions: `https://brew.sh/`\
-Install MongoDB: `brew tap mongodb/brew`
+Install and start MongoDB:\
+`brew tap mongodb/brew`\
+`brew install mongodb-community@4.2`\
+`brew services start mongodb-community@4.2`
 
 In Terminal, navigate to the the anagram-api project directory
 
